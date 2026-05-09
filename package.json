@@ -1,0 +1,11 @@
+{
+  "name": "vad-gafa-26-roster",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs",
+    "organize": "python3 organize_issues.py"
+  }
+}

@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Node / local runtime
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.log
+
+# Optional local-only exports
+*.sqlite
+*.db
