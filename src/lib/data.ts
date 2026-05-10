@@ -1,15 +1,10 @@
-import { execFile } from "node:child_process";
-import { createServer } from "node:http";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { execFile } from "node:child_process";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PORT || 4319);
-const RAW_FILE = path.join(__dirname, "github_issues_raw.json");
-const OVERRIDES_FILE = path.join(__dirname, "roster_overrides.json");
-const PUBLIC_DIR = path.join(__dirname, "public");
+const RAW_FILE = path.join(process.cwd(), "github_issues_raw.json");
+const OVERRIDES_FILE = path.join(process.cwd(), "roster_overrides.json");
 const REPO = "saintmob/vad.gafa.26";
 
 const KNOWN_NAMES = [
@@ -23,7 +18,7 @@ const TEACHER_LOGINS = new Set(["saintmob"]);
 const COLOR_WORDS = ["绿色", "橙色", "黑色", "粉色", "透明色", "蓝色"];
 const DEPLOY_HOSTS = ["vercel.app", "run.app", "staticsite.me", "vusercontent.net"];
 
-function defaultOverrides() {
+export function defaultOverrides() {
   return {
     version: 1,
     updatedAt: null,
@@ -32,12 +27,12 @@ function defaultOverrides() {
   };
 }
 
-async function readJson(file, fallback) {
+export async function readJson(file: string, fallback: any) {
   if (!existsSync(file)) return fallback;
   return JSON.parse(await readFile(file, "utf8"));
 }
 
-async function writeJson(file, value) {
+export async function writeJson(file: string, value: any) {
   await writeFile(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
@@ -45,14 +40,14 @@ function cleanText(value = "") {
   return String(value).replace(/\s+/g, " ").trim();
 }
 
-function extractLinks(text = "") {
+export function extractLinks(text = "") {
   const matches = text.match(/https?:\/\/[^\s)\]<"，。；、]+/g) || [];
   return [...new Set(matches.map((link) => link.replace(/[.,，。]+$/, "")))];
 }
 
 function extractNames(title = "", body = "") {
   const text = `${title}\n${body}`;
-  const found = [];
+  const found: string[] = [];
   for (const name of KNOWN_NAMES) {
     if (!text.includes(name)) continue;
     if (found.some((longer) => longer.includes(name))) continue;
@@ -61,7 +56,7 @@ function extractNames(title = "", body = "") {
   return found;
 }
 
-function classifyIssue(issue) {
+function classifyIssue(issue: any) {
   const number = issue.number;
   const title = issue.title || "";
   const body = issue.body || "";
@@ -99,7 +94,7 @@ function classifyIssue(issue) {
   return ["待处理/未分类", "规则未覆盖，需人工校对"];
 }
 
-function evidenceType(body, links) {
+function evidenceType(body: string, links: string[]) {
   const imgCount = (body || "").split("<img").length - 1;
   const deployLinks = links.filter((link) => DEPLOY_HOSTS.some((host) => link.includes(host)));
   if (deployLinks.length && imgCount) return "网站链接+图片";
@@ -111,7 +106,7 @@ function evidenceType(body, links) {
   return "空内容";
 }
 
-function buildAuthorNameIndex(issues) {
+function buildAuthorNameIndex(issues: any[]) {
   const index = new Map();
   for (const issue of issues) {
     const login = issue.author?.login;
@@ -125,14 +120,14 @@ function buildAuthorNameIndex(issues) {
   return index;
 }
 
-function likelyNameForAuthor(index, login) {
+function likelyNameForAuthor(index: Map<any, any>, login: string) {
   const scores = index.get(login);
   if (!scores) return "";
   return [...scores.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "";
 }
 
-function issueFlags(issue, names, category, evidence, links) {
-  const flags = [];
+function issueFlags(issue: any, names: string[], category: string, evidence: string, links: string[]) {
+  const flags: string[] = [];
   if (category === "老师/课程说明") return flags;
   if (issue.state === "CLOSED") flags.push("关闭项");
   if (!names.length) flags.push("缺姓名");
@@ -149,7 +144,7 @@ function issueFlags(issue, names, category, evidence, links) {
   return flags;
 }
 
-function mergeIssueOverride(base, override = {}) {
+function mergeIssueOverride(base: any, override: any = {}) {
   return {
     ...base,
     correctedStudentNames: override.studentNames || base.studentNames,
@@ -160,7 +155,7 @@ function mergeIssueOverride(base, override = {}) {
   };
 }
 
-function buildData(rawIssues, overrides) {
+export function buildData(rawIssues: any[], overrides: any) {
   const authorNameIndex = buildAuthorNameIndex(rawIssues);
   const issues = rawIssues
     .slice()
@@ -219,7 +214,7 @@ function buildData(rawIssues, overrides) {
     const person = peopleByLogin.get(login);
     person.issueCount += 1;
     person.categories.add(issue.correctedCategory);
-    issue.flags.forEach((flag) => person.flags.add(flag));
+    issue.flags.forEach((flag: string) => person.flags.add(flag));
     person.issueNumbers.push(issue.issue);
   }
 
@@ -251,13 +246,13 @@ function buildData(rawIssues, overrides) {
   };
 }
 
-async function loadData() {
+export async function loadData() {
   const raw = await readJson(RAW_FILE, []);
   const overrides = await readJson(OVERRIDES_FILE, defaultOverrides());
   return buildData(raw, overrides);
 }
 
-async function refreshIssues() {
+export async function refreshIssues() {
   const args = [
     "issue", "list",
     "--repo", REPO,
@@ -265,8 +260,8 @@ async function refreshIssues() {
     "--limit", "300",
     "--json", "number,title,body,author,labels,state,createdAt,updatedAt,url",
   ];
-  const output = await new Promise((resolve, reject) => {
-    execFile("gh", args, { cwd: __dirname, maxBuffer: 20 * 1024 * 1024 }, (error, stdout, stderr) => {
+  const output = await new Promise<string>((resolve, reject) => {
+    execFile("gh", args, { cwd: process.cwd(), maxBuffer: 20 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
         reject(new Error(stderr || error.message));
         return;
@@ -279,90 +274,30 @@ async function refreshIssues() {
   return loadData();
 }
 
-async function readBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  if (!chunks.length) return {};
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
-}
-
-function sendJson(res, status, payload) {
-  res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
-  res.end(JSON.stringify(payload));
-}
-
-async function serveStatic(req, res) {
-  const url = new URL(req.url, "http://localhost");
-  const requested = url.pathname === "/" ? "/index.html" : url.pathname;
-  const file = path.normalize(path.join(PUBLIC_DIR, requested));
-  if (!file.startsWith(PUBLIC_DIR)) {
-    res.writeHead(403);
-    res.end("Forbidden");
-    return;
-  }
-  const ext = path.extname(file);
-  const types = {
-    ".html": "text/html; charset=utf-8",
-    ".css": "text/css; charset=utf-8",
-    ".js": "application/javascript; charset=utf-8",
+export async function updatePerson(body: any) {
+  const overrides = await readJson(OVERRIDES_FILE, defaultOverrides());
+  overrides.people[body.login] = {
+    realName: cleanText(body.realName),
+    githubName: cleanText(body.githubName),
+    role: cleanText(body.role) || "学生",
+    avatarUrl: cleanText(body.avatarUrl),
+    note: cleanText(body.note),
   };
-  try {
-    const content = await readFile(file);
-    res.writeHead(200, { "content-type": types[ext] || "application/octet-stream" });
-    res.end(content);
-  } catch {
-    res.writeHead(404);
-    res.end("Not found");
-  }
+  overrides.updatedAt = new Date().toISOString();
+  await writeJson(OVERRIDES_FILE, overrides);
+  return loadData();
 }
 
-const server = createServer(async (req, res) => {
-  try {
-    const url = new URL(req.url, "http://localhost");
-    if (req.method === "GET" && url.pathname === "/api/data") {
-      sendJson(res, 200, await loadData());
-      return;
-    }
-    if (req.method === "POST" && url.pathname === "/api/refresh") {
-      sendJson(res, 200, await refreshIssues());
-      return;
-    }
-    if (req.method === "POST" && url.pathname === "/api/person") {
-      const body = await readBody(req);
-      const overrides = await readJson(OVERRIDES_FILE, defaultOverrides());
-      overrides.people[body.login] = {
-        realName: cleanText(body.realName),
-        githubName: cleanText(body.githubName),
-        role: cleanText(body.role) || "学生",
-        avatarUrl: cleanText(body.avatarUrl),
-        note: cleanText(body.note),
-      };
-      overrides.updatedAt = new Date().toISOString();
-      await writeJson(OVERRIDES_FILE, overrides);
-      sendJson(res, 200, await loadData());
-      return;
-    }
-    if (req.method === "POST" && url.pathname === "/api/issue") {
-      const body = await readBody(req);
-      const overrides = await readJson(OVERRIDES_FILE, defaultOverrides());
-      overrides.issues[String(body.issue)] = {
-        studentNames: String(body.studentNames || "").split(/[、,，]/).map((item) => cleanText(item)).filter(Boolean),
-        category: cleanText(body.category),
-        role: cleanText(body.role),
-        note: cleanText(body.note),
-        resolved: Boolean(body.resolved),
-      };
-      overrides.updatedAt = new Date().toISOString();
-      await writeJson(OVERRIDES_FILE, overrides);
-      sendJson(res, 200, await loadData());
-      return;
-    }
-    await serveStatic(req, res);
-  } catch (error) {
-    sendJson(res, 500, { error: error.message });
-  }
-});
-
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`Roster app running at http://127.0.0.1:${PORT}`);
-});
+export async function updateIssue(body: any) {
+  const overrides = await readJson(OVERRIDES_FILE, defaultOverrides());
+  overrides.issues[String(body.issue)] = {
+    studentNames: String(body.studentNames || "").split(/[、,，]/).map((item) => cleanText(item)).filter(Boolean),
+    category: cleanText(body.category),
+    role: cleanText(body.role),
+    note: cleanText(body.note),
+    resolved: Boolean(body.resolved),
+  };
+  overrides.updatedAt = new Date().toISOString();
+  await writeJson(OVERRIDES_FILE, overrides);
+  return loadData();
+}
