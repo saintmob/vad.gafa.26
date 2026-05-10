@@ -27,28 +27,27 @@ export function ProfileAudioPlayer({ audioUrl, title, author }: { audioUrl: stri
   const isCurrentTrack = currentTrack?.url === audioUrl;
 
   return (
-    <div className="glass-panel p-6 mb-8 bg-primary/10 border-primary/20 flex flex-col md:flex-row items-center gap-6">
+    <div className="bg-card border border-foreground p-10 flex flex-col md:flex-row items-center gap-10 shadow-gallery-low">
       <div className="flex-1">
-        <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
-          <span>🎵</span> 主题曲发现！
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          从该同学的作业提交中找到了音频，已将其添加至全局播放器。
+        <h3 className="text-2xl font-serif mb-3">Audio Composition Detected</h3>
+        <p className="text-xs uppercase tracking-widest text-secondary leading-relaxed">
+          An acoustic specimen has been identified within this student&apos;s submission archive. 
+          It has been queued for immediate exhibition in the global player.
         </p>
       </div>
       <button 
         onClick={() => playAudio(audioUrl, title, author)}
-        className="btn-primary px-6 py-2.5 rounded-full font-medium flex items-center gap-2 shadow-lg"
+        className="btn-vermillion min-w-[200px]"
       >
         {isCurrentTrack && isPlaying ? (
           <>
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
-            暂停播放
+            <svg className="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+            HALT EXHIBIT
           </>
         ) : (
           <>
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            {autoplayFailed ? "点击播放 (浏览器限制自动播放)" : "播放主题曲"}
+            <svg className="w-4 h-4 mr-3 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            {autoplayFailed ? "ACTIVATE AUDIO" : "BEGIN EXHIBITION"}
           </>
         )}
       </button>

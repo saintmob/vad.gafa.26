@@ -13,45 +13,45 @@ export function LayoutSidebar({ repoName, rawCount }: { repoName: string, rawCou
   ];
 
   return (
-    <aside className="w-64 glass border-r flex flex-col shrink-0 h-screen overflow-hidden sticky top-0 relative z-20">
-      <div className="p-8 border-b border-border/50">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center font-bold text-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white">
-            AI
+    <aside className="w-64 bg-card border-r border-border flex flex-col shrink-0 h-screen overflow-hidden sticky top-0 relative z-20">
+      <div className="p-10 border-b border-border">
+        <div className="flex flex-col gap-4">
+          <div className="w-12 h-12 bg-foreground flex items-center justify-center font-serif text-2xl text-background">
+            M
           </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="font-bold text-lg tracking-wide truncate">课程名册</h1>
-            <p className="text-xs text-muted-foreground truncate opacity-80" title={repoName}>{repoName}</p>
+          <div className="min-w-0">
+            <h1 className="text-xl font-serif tracking-tight leading-none mb-1">Museé</h1>
+            <p className="text-[10px] text-secondary uppercase tracking-[0.2em] font-medium opacity-80" title={repoName}>Archive</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-6 space-y-3 overflow-y-auto">
+      <nav className="flex-1 p-8 space-y-4 overflow-y-auto">
+        <p className="text-[10px] text-secondary uppercase tracking-[0.2em] mb-6 font-bold">Navigation</p>
         {navs.map((nav) => {
           const isActive = pathname === nav.id;
           return (
             <Link
               key={nav.id}
               href={nav.id}
-              className={`group relative w-full block text-left px-4 py-3.5 rounded-xl transition-all duration-300 ${
+              className={`group relative w-full block text-left py-2 transition-all duration-300 ${
                 isActive
-                  ? "bg-foreground/[0.03] text-foreground font-semibold shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                  : "text-muted-foreground hover:bg-foreground/[0.02] hover:text-foreground border border-transparent"
+                  ? "text-foreground font-semibold"
+                  : "text-secondary hover:text-foreground"
               }`}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--color-primary)]" />
-              )}
-              {nav.label}
+              <span className={`text-sm tracking-wide ${isActive ? 'underline underline-offset-8 decoration-accent-vermillion decoration-2' : ''}`}>
+                {nav.label}
+              </span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-6 border-t border-border/50 bg-foreground/[0.01]">
-        <div className="flex justify-between items-center text-sm">
-          <span className="text-muted-foreground font-medium">原始记录</span>
-          <strong className="text-foreground bg-foreground/5 px-2 py-0.5 rounded-md">{rawCount}</strong>
+      <div className="p-8 border-t border-border bg-background">
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] text-secondary uppercase tracking-[0.2em] font-bold">Exhibit Count</span>
+          <strong className="text-2xl font-serif leading-none">{rawCount}</strong>
         </div>
       </div>
     </aside>

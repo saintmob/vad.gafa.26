@@ -39,40 +39,34 @@ export function IssuesClient({ initialData, isDevelopment }: { initialData: any,
         <button
           onClick={refreshIssues}
           disabled={loading || !isDevelopment}
-          className="btn-primary text-sm px-4 py-1.5 rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
+          className="btn-vermillion text-[10px] tracking-widest px-6 py-2 h-fit"
         >
-          {loading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-              同步中...
-            </>
-          ) : (
-            "刷新 Issues"
-          )}
+          {loading ? "SYNCHRONIZING..." : "REFRESH ARCHIVE"}
         </button>
       </PageHeader>
       
-      <div className="flex flex-col gap-3 p-8">
+      <div className="grid grid-cols-1 gap-1px bg-border border-b border-border">
         {filteredIssues.map((issue: any) => (
-          <div key={issue.issue} className="glass-panel p-4 flex items-center gap-4 hover:bg-foreground/[0.02] transition-colors">
-            <div className="text-lg font-mono text-muted-foreground w-12 shrink-0">#{issue.issue}</div>
+          <div key={issue.issue} className="bg-card p-8 flex items-center gap-12 hover:bg-background transition-colors group">
+            <div className="text-xl font-serif text-secondary w-20 shrink-0">#{issue.issue}</div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium truncate mb-2">{issue.title}</h4>
-              <div className="flex flex-wrap gap-2">
-                <span className="chip">{issue.correctedStudentNames.join("、") || "待校对"}</span>
-                <span className="chip">{issue.correctedCategory}</span>
-                <span className="chip bg-foreground/5">{issue.state}</span>
+              <h4 className="text-xl font-serif truncate mb-3 group-hover:text-accent-vermillion transition-colors">{issue.title}</h4>
+              <div className="flex flex-wrap gap-4 items-center">
+                <span className="chip-minimal">{issue.correctedStudentNames.join(", ") || "UNIDENTIFIED"}</span>
+                <span className="chip-minimal">{issue.correctedCategory}</span>
+                <span className="text-[10px] uppercase tracking-widest text-secondary font-medium">{issue.state}</span>
               </div>
             </div>
-            <div className="flex shrink-0 gap-3">
-              <a href={issue.issueUrl} target="_blank" rel="noreferrer" className="link-external px-4 py-2 bg-foreground/5">
-                GitHub
+            <div className="flex shrink-0">
+              <a href={issue.issueUrl} target="_blank" rel="noreferrer" className="text-xs font-bold uppercase tracking-widest underline underline-offset-4 decoration-border hover:decoration-foreground transition-all">
+                Entry &rarr;
               </a>
             </div>
           </div>
         ))}
-        {filteredIssues.length === 0 && <div className="text-muted-foreground">没有匹配的 issue。</div>}
+        {filteredIssues.length === 0 && <div className="p-12 text-secondary uppercase tracking-widest text-xs">No matching archives found.</div>}
       </div>
+      <div className="empty-space" />
     </>
   );
 }
