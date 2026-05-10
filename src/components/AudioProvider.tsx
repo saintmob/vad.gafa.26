@@ -31,7 +31,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Initialize audio element
     const audio = new Audio();
-    audio.crossOrigin = "anonymous";
+    // Removed audio.crossOrigin = "anonymous" to fix GitHub AWS S3 CORS issues
+    audio.volume = 0.6; // Set a gentle default volume to prevent jump scares since we can't use Web Audio API compressor
     audioRef.current = audio;
 
     const handlePlay = () => setIsPlaying(true);
@@ -54,32 +55,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const playAudio = (url: string, title: string, author: string) => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    // Initialize Web Audio API on first interaction to bypass autoplay restrictions
-    if (!audioCtxRef.current) {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContext();
-      audioCtxRef.current = ctx;
-
-      const source = ctx.createMediaElementSource(audio);
-      sourceNodeRef.current = source;
-
-      const compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.value = -24; // Lower threshold to catch loud sounds early
-      compressor.knee.value = 30; // Smooth transition
-      compressor.ratio.value = 12; // High compression ratio for loud peaks
-      compressor.attack.value = 0.003; // Fast attack to catch peaks
-      compressor.release.value = 0.25;
-      compressorRef.current = compressor;
-
-      source.connect(compressor);
-      compressor.connect(ctx.destination);
-    }
-
-    // Resume AudioContext if it was suspended (browser policy)
-    if (audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
 
     if (currentTrack?.url === url) {
       // Toggle play/pause if it's the same track
@@ -130,7 +105,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
               )}
             </button>
             <span className="text-xs text-muted-foreground border border-muted-foreground/30 px-2 py-0.5 rounded-full">
-              音量自动均衡开启中
+              默认温和音量
             </span>
           </div>
 
