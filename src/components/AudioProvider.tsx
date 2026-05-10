@@ -21,9 +21,6 @@ export function useAudio() {
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const compressorRef = useRef<DynamicsCompressorNode | null>(null);
 
   const [currentTrack, setCurrentTrack] = useState<{ url: string; title: string; author: string } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -80,46 +77,43 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   return (
     <AudioPlayerContext.Provider value={{ playAudio, stopAudio, currentTrack, isPlaying }}>
       {children}
-      {/* Global Audio Player Dock */}
+      {/* Global Audio Player Pill */}
       {currentTrack && (
-        <div className="fixed bottom-0 left-0 right-0 glass-panel border-t border-b-0 border-x-0 rounded-none p-4 z-50 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
-              🎵
+        <div className="fixed bottom-6 left-6 z-[60] animate-stagger-item">
+          <div className="glass-panel px-4 py-3 flex items-center gap-4 shadow-2xl min-w-[280px] max-w-[360px] border-primary/20">
+            <div className={`shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold shadow-inner ${isPlaying ? 'animate-[pulse_2s_ease-in-out_infinite]' : ''}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
             </div>
-            <div className="min-w-0">
-              <p className="font-bold truncate text-foreground">{currentTrack.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{currentTrack.author}</p>
+            
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold truncate text-foreground leading-tight">{currentTrack.title}</p>
+              <p className="text-[11px] text-muted-foreground truncate opacity-80 mt-0.5">{currentTrack.author}</p>
             </div>
-          </div>
-          
-          <div className="flex items-center justify-center gap-6 flex-1">
-            <button 
-              onClick={() => playAudio(currentTrack.url, currentTrack.title, currentTrack.author)}
-              className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-blue-600 hover:scale-105 transition-all shadow-md"
-            >
-              {isPlaying ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
-              ) : (
-                <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              )}
-            </button>
-            <span className="text-xs text-muted-foreground border border-muted-foreground/30 px-2 py-0.5 rounded-full">
-              默认温和音量
-            </span>
-          </div>
-
-          <div className="flex-1 flex justify-end">
-            <button 
-              onClick={() => {
-                stopAudio();
-                setCurrentTrack(null);
-              }}
-              className="text-muted-foreground hover:text-foreground p-2"
-              title="关闭播放器"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => playAudio(currentTrack.url, currentTrack.title, currentTrack.author)}
+                className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
+              >
+                {isPlaying ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+                ) : (
+                  <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                )}
+              </button>
+              <button 
+                onClick={() => {
+                  stopAudio();
+                  setCurrentTrack(null);
+                }}
+                className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                title="关闭"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
           </div>
         </div>
       )}

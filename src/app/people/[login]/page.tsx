@@ -40,30 +40,36 @@ export default async function PersonProfile({ params }: { params: Promise<{ logi
 
   return (
     <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto pb-24">
-        <Link href="/" className="inline-flex items-center text-sm link-internal mb-8">
-          &larr; 返回课程名册
+      <div className="max-w-4xl mx-auto pb-24 relative z-10">
+        <Link href="/" className="inline-flex items-center text-sm link-internal mb-6 bg-background/50 backdrop-blur-md px-4 py-2 rounded-full border border-border/50 shadow-sm">
+          &larr; 返回名册
         </Link>
         
-        <div className="glass-panel p-8 mb-8 flex flex-col md:flex-row gap-8 items-start">
-          <img src={person.avatarUrl} alt={person.login} className="w-32 h-32 rounded-2xl ring-4 ring-foreground/10 shadow-2xl" />
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-2">{person.realName || "待校对"}</h1>
-            <a href={`https://github.com/${person.login}`} target="_blank" rel="noreferrer" className="text-xl link-external mb-4">
-              @{person.login}
-            </a>
-            
-            <div className="flex flex-wrap gap-2 mb-6">
-              <span className="chip px-3 py-1">{person.role}</span>
-              <span className="chip px-3 py-1">{person.issueCount} 个提交</span>
+        <div className="glass-panel relative overflow-hidden mb-12">
+          {/* Banner Background */}
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20" />
+          
+          <div className="px-8 pt-20 pb-8 relative flex items-end gap-6 flex-wrap sm:flex-nowrap">
+            <img src={person.avatarUrl} alt={person.login} className="w-32 h-32 rounded-3xl ring-4 ring-background shadow-2xl bg-background" />
+            <div className="flex-1 min-w-0 pb-2">
+              <h1 className="text-4xl font-bold mb-2 tracking-tight">{person.realName || "待校对"}</h1>
+              <a href={`https://github.com/${person.login}`} target="_blank" rel="noreferrer" className="text-lg link-external mb-4">
+                @{person.login}
+              </a>
+              
+              <div className="flex flex-wrap gap-2 mt-4">
+                <span className="chip bg-primary/10 text-primary border-primary/20 text-sm py-1 px-3">{person.role}</span>
+                <span className="chip bg-secondary text-secondary-foreground text-sm py-1 px-3">{person.issueCount} 个作业记录</span>
+                {person.manuallyCorrected && <span className="chip text-purple-600 dark:text-purple-400 border-purple-500/30 bg-purple-500/10 text-sm py-1 px-3">已修正</span>}
+              </div>
             </div>
             
-            {person.note && (
-              <div className="text-muted-foreground p-4 bg-foreground/5 rounded-lg text-sm border border-border">
-                <strong className="block text-foreground mb-1">备注：</strong>
-                {person.note}
+            <div className="flex flex-col gap-2 pb-2">
+              <span className="text-xs text-muted-foreground uppercase tracking-widest text-right">名册数据</span>
+              <div className="flex gap-1.5 flex-wrap justify-end max-w-[200px]">
+                {person.categories.map((c: string) => <span key={c} className="chip bg-foreground/[0.03] text-xs">{c}</span>)}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -71,31 +77,56 @@ export default async function PersonProfile({ params }: { params: Promise<{ logi
           <ProfileAudioPlayer audioUrl={audioUrl} title={audioTitle} author={person.realName || person.login} />
         )}
 
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-          作业提交记录
-          <span className="bg-foreground/10 text-foreground text-sm px-3 py-1 rounded-full font-normal">
-            {issues.length}
-          </span>
-        </h2>
-        
-        <div className="grid gap-4">
-          {issues.map((issue) => (
-            <div key={issue.issue} className="glass-panel p-6 hover:bg-foreground/[0.02] transition-colors relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 flex gap-2 z-10">
-                <span className="chip bg-foreground/10 backdrop-blur-md border border-border">{issue.correctedCategory}</span>
-                <span className="chip bg-foreground/10 backdrop-blur-md border border-border">{issue.evidenceType}</span>
-              </div>
-              
-              <div className="text-lg font-mono text-muted-foreground mb-2">#{issue.issue}</div>
-              <h3 className="text-xl font-bold mb-4 pr-32">{issue.title}</h3>
-              
-              <div className="flex gap-4">
-                <a href={issue.issueUrl} target="_blank" rel="noreferrer" className="link-external bg-foreground/5 py-1.5 px-3">
-                  前往 GitHub 查看
-                </a>
-              </div>
-            </div>
-          ))}
+        <div className="space-y-8 relative">
+          {/* Timeline connecting line */}
+          <div className="absolute left-6 top-8 bottom-8 w-px bg-border/50 hidden sm:block" />
+          
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-primary inline-block"></span>
+            作业记录 ({issues.length})
+          </h2>
+          
+          <div className="flex flex-col gap-6">
+            {issues.map((issue: any, index: number) => {
+              const isMedia = issue.category.includes("网页/音乐") || issue.evidenceType.includes("链接");
+              return (
+                <div key={issue.issue} 
+                  className="relative sm:pl-16 animate-stagger-item"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {/* Timeline dot */}
+                  <div className="absolute left-6 top-6 w-3 h-3 rounded-full bg-border border-4 border-background hidden sm:block transform -translate-x-1.5" />
+                  
+                  <div className="glass-panel p-6 sm:p-8 hover:bg-foreground/[0.02] transition-colors group">
+                    <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-mono text-muted-foreground bg-foreground/5 px-2 py-1 rounded-md">#{issue.issue}</span>
+                        <span className="chip bg-background">{issue.correctedCategory}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(issue.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold mb-5 tracking-tight group-hover:text-primary transition-colors">{issue.title}</h3>
+                    
+                    <div className="flex flex-wrap gap-4 items-center">
+                      <a href={issue.issueUrl} target="_blank" rel="noreferrer" className="link-external bg-foreground/[0.03] border-border/50 py-2 px-4 shadow-sm hover:shadow-md transition-all">
+                        前往 GitHub 查看
+                      </a>
+                      {isMedia && <span className="text-sm text-muted-foreground flex items-center gap-2"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 包含多媒体附件</span>}
+                    </div>
+                    
+                    {issue.flags.length > 0 && (
+                      <div className="mt-5 pt-4 border-t border-border/50 flex gap-2 flex-wrap">
+                        {issue.flags.map((f: string) => <span key={f} className="chip warn text-xs">{f}</span>)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

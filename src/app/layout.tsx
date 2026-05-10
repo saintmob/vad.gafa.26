@@ -37,8 +37,10 @@ export default async function RootLayout({
           <div className="flex h-screen overflow-hidden font-sans">
             <LayoutSidebar repoName={data.repo} rawCount={data.rawCount} />
             <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/10 via-background to-background -z-10" />
-              <div className="flex-1 overflow-y-auto pb-24 relative">
+              {/* Subtle Background */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[radial-gradient(circle_at_50%_-20%,var(--color-primary),transparent_70%)] opacity-[0.03]" />
+              
+              <div className="flex-1 overflow-y-auto pb-24 relative z-0">
                 {children}
               </div>
             </main>

@@ -209,11 +209,15 @@ export function buildData(rawIssues: any[], overrides: any) {
         flags: new Set(),
         issueNumbers: [],
         manuallyCorrected: Boolean(overrides.people[login]),
+        hasMusic: false,
       });
     }
     const person = peopleByLogin.get(login);
     person.issueCount += 1;
     person.categories.add(issue.correctedCategory);
+    if (issue.correctedCategory.includes("音乐")) {
+      person.hasMusic = true;
+    }
     issue.flags.forEach((flag: string) => person.flags.add(flag));
     person.issueNumbers.push(issue.issue);
   }

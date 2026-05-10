@@ -16,7 +16,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="px-8 py-6 glass border-b sticky top-0 z-10 flex justify-between items-center gap-4">
+    <header className="px-8 py-6 bg-background/95 backdrop-blur-md border-b sticky top-0 z-10 flex justify-between items-center gap-4 shadow-sm">
       <div className="flex-1">
         <h2 className="text-2xl font-bold mb-1 flex items-center gap-4">
           {title}
