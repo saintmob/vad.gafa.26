@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAudio } from "./AudioProvider";
 
 export function LayoutSidebar({ repoName, rawCount }: { repoName: string, rawCount: number }) {
   const pathname = usePathname();
+  const { currentTrack, isPlayerCollapsed, setIsPlayerCollapsed } = useAudio();
 
   const navs = [
     { id: "/", label: "师生名册" },
@@ -49,9 +51,26 @@ export function LayoutSidebar({ repoName, rawCount }: { repoName: string, rawCou
       </nav>
 
       <div className="p-8 border-t border-border bg-background">
-        <div className="flex flex-col gap-2">
-          <span className="text-[10px] text-secondary uppercase tracking-[0.2em] font-bold">Exhibit Count</span>
-          <strong className="text-2xl font-serif leading-none">{rawCount}</strong>
+        <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-2 min-w-0">
+            <span className="text-[10px] text-secondary uppercase tracking-[0.2em] font-bold">Exhibit Count</span>
+            <strong className="text-2xl font-serif leading-none">{rawCount}</strong>
+          </div>
+          {currentTrack && (
+            <button
+              onClick={() => setIsPlayerCollapsed(!isPlayerCollapsed)}
+              className="shrink-0 w-10 h-10 rounded-full bg-card border border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-all active:scale-95"
+              title={isPlayerCollapsed ? "EXPAND PLAYER" : "COLLAPSE PLAYER"}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                {isPlayerCollapsed ? (
+                  <path d="M8 5v14l11-7z"/>
+                ) : (
+                  <path d="M19 9l-7 7-7-7"/>
+                )}
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </aside>

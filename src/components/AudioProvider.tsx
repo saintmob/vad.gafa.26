@@ -7,6 +7,8 @@ interface AudioContextType {
   stopAudio: () => void;
   currentTrack: { url: string; title: string; author: string } | null;
   isPlaying: boolean;
+  isPlayerCollapsed: boolean;
+  setIsPlayerCollapsed: (collapsed: boolean) => void;
 }
 
 const AudioPlayerContext = createContext<AudioContextType | null>(null);
@@ -24,6 +26,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const [currentTrack, setCurrentTrack] = useState<{ url: string; title: string; author: string } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlayerCollapsed, setIsPlayerCollapsed] = useState(false);
 
   useEffect(() => {
     // Initialize audio element
@@ -75,10 +78,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AudioPlayerContext.Provider value={{ playAudio, stopAudio, currentTrack, isPlaying }}>
+    <AudioPlayerContext.Provider value={{ playAudio, stopAudio, currentTrack, isPlaying, isPlayerCollapsed, setIsPlayerCollapsed }}>
       {children}
       {/* Global Audio Player Pill */}
-      {currentTrack && (
+      {currentTrack && !isPlayerCollapsed && (
         <div className="fixed bottom-12 left-12 z-[60] animate-stagger-item">
           <div className="bg-card border border-foreground px-6 py-4 flex items-center gap-6 shadow-gallery-high min-w-[320px]">
             <div className={`shrink-0 w-12 h-12 bg-foreground text-background flex items-center justify-center font-serif text-xl ${isPlaying ? 'animate-pulse' : ''}`}>
@@ -95,6 +98,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
               <button 
                 onClick={() => playAudio(currentTrack.url, currentTrack.title, currentTrack.author)}
                 className="w-10 h-10 bg-accent-vermillion text-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+                title={isPlaying ? "PAUSE" : "PLAY"}
               >
                 {isPlaying ? (
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
@@ -103,14 +107,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 )}
               </button>
               <button 
-                onClick={() => {
-                  stopAudio();
-                  setCurrentTrack(null);
-                }}
+                onClick={() => setIsPlayerCollapsed(true)}
                 className="text-secondary hover:text-foreground transition-colors p-1"
-                title="CLOSE"
+                title="COLLAPSE"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
             </div>
           </div>

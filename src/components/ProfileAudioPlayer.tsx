@@ -29,10 +29,9 @@ export function ProfileAudioPlayer({ audioUrl, title, author }: { audioUrl: stri
   return (
     <div className="bg-card border border-foreground p-10 flex flex-col md:flex-row items-center gap-10 shadow-gallery-low">
       <div className="flex-1">
-        <h3 className="text-2xl font-serif mb-3">Audio Composition Detected</h3>
+        <h3 className="text-2xl font-serif mb-3">{title}</h3>
         <p className="text-xs uppercase tracking-widest text-secondary leading-relaxed">
-          An acoustic specimen has been identified within this student&apos;s submission archive. 
-          It has been queued for immediate exhibition in the global player.
+          {author}
         </p>
       </div>
       <button 
